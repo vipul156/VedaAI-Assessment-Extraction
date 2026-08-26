@@ -1,0 +1,27 @@
+
+# drytis infra
+/.playwright-mcp/
+
+# screenshots
+*.png
+!fixtures/*.png
+
+# env
+.env*
+
+# next
+/.next/
+/out/
+
+# deps
+/node_modules
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+/coverage
+/build
+.vercel

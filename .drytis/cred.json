@@ -1,0 +1,5 @@
+{
+  "preview_url": "https://vedaai-assessment-ex-z2sco3.drytis.dev/",
+  "notes": "No auth required by design. Test files for upload live at /workspace/fixtures/questionPaper.pdf and /workspace/fixtures/answerSheet.png. Use file input via the drop zones (click to open file picker).",
+  "accounts": []
+}

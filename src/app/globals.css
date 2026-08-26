@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --veda-ink: #1f2937;
+  --veda-accent: #f97316;
+  --veda-canvas: #f4f5f7;
+}
+
+@theme inline {
+  --color-ink: var(--veda-ink);
+  --color-accent: var(--veda-accent);
+  --color-canvas: var(--veda-canvas);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* thin scrollbars for the answer-sheet viewer */
+.veda-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.veda-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 8px;
+}
