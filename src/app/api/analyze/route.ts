@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
           answers: [],
           result: null,
           notes: [],
+          warnings: [],
         });
         if (!final.result) throw new Error("pipeline produced no result");
         completeJob(jobId, final.result);

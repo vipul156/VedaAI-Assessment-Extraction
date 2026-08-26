@@ -13,8 +13,23 @@ export function normalizeLabel(raw: string): NormalizedLabel | null {
   // strip common prefixes like "Q", "Q.", "Question", "Ans", "A"
   s = s.replace(/^Q(?:uestion)?\.?\s*(?=\d)/i, "").trim();
 
-  const m = s.match(/^(\d{1,3})\s*(?:[\.\):\-]?\s*(?:\(?([a-hA-H][\dIVXivx]?)\)?)?)?\s*[\.\):\-]?$/);
-  if (!m) return null;
+  // Try strict match first (just a number with optional subpart, nothing trailing)
+  const strictM = s.match(/^(\d{1,3})\s*(?:[\.\):\-]?\s*(?:\(?([a-hA-H][\dIVXivx]?)\)?)?)?\s*[\.\):\-]?$/);
+  if (strictM) {
+    return buildLabel(strictM);
+  }
+
+  // Fallback: extract leading number + optional subpart, ignore trailing text.
+  // Handles labels like "Q1: Science", "3(b): History", "10 - General", "2. Math"
+  const looseM = s.match(/^(\d{1,3})\s*(?:[\.\):\-]?\s*(?:\(?([a-hA-H][\dIVXivx]?)\)?)?)?\s*[\.\):\-]?\s+/);
+  if (looseM) {
+    return buildLabel(looseM);
+  }
+
+  return null;
+}
+
+function buildLabel(m: RegExpMatchArray): NormalizedLabel | null {
   const number = parseInt(m[1], 10);
   if (!Number.isFinite(number) || number < 1) return null;
   let subpart: string | null = m[2] ?? null;

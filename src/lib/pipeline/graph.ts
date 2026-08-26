@@ -105,19 +105,21 @@ async function pageDataUrl(jobId: string, doc: "question_paper" | "answer_sheet"
 export async function extractQuestionsNode(state: PipelineStateType): Promise<Partial<PipelineStateType>> {
   setPhase(state.jobId, "extracting_questions", 20, "Extracting questions");
   const notes: string[] = [...state.notes];
+  const warnings: string[] = [...state.warnings];
 
   if (state.textLines && state.textLines.length > 0) {
     const questions = parseQuestionsFromText(state.textLines, "text");
     if (questions.length > 0) {
       logger.info("questions_from_text", { jobId: state.jobId, count: questions.length });
-      return { questions };
+      return { questions, warnings };
     }
     notes.push("Text layer found but no questions parsed — falling back to vision.");
   }
 
   if (!aiEnabled()) {
     notes.push("AI not configured: question extraction limited to PDF text layer.");
-    return { questions: [], notes };
+    warnings.push("AI is not configured. Question extraction from images is unavailable. Set OPENAI_API_KEY and OPENAI_BASE_URL to enable vision-based extraction.");
+    return { questions: [], notes, warnings };
   }
 
   const items: { label: string; text: string; marks: number | null }[] = [];
@@ -133,22 +135,28 @@ export async function extractQuestionsNode(state: PipelineStateType): Promise<Pa
     } catch (err) {
       logger.warn("vision_question_page_failed", { jobId: state.jobId, page: i + 1, err: String(err) });
       notes.push(`Question extraction failed on page ${i + 1}; skipped.`);
+      warnings.push(`Question extraction failed on page ${i + 1} (AI service error). The model may be temporarily unavailable or rate-limited.`);
     }
   }
   const questions: Question[] = questionsFromVision(items);
+  if (questions.length === 0 && state.questionPages.length > 0) {
+    warnings.push("No questions were extracted from the question paper. This could be due to an AI service error, unclear image quality, or unrecognizable question labels. Please check that the uploaded image is a clear scan/photo of a question paper.");
+  }
   logger.info("questions_from_vision", { jobId: state.jobId, count: questions.length });
-  return { questions, notes };
+  return { questions, notes, warnings };
 }
 
 export async function extractAnswersNode(state: PipelineStateType): Promise<Partial<PipelineStateType>> {
   setPhase(state.jobId, "extracting_answers", 45, "Reading handwritten answers");
   const notes: string[] = [...state.notes];
+  const warnings: string[] = [...state.warnings];
   const rawAnswers: RawAnswer[] = [];
   let seq = 0;
 
   if (!aiEnabled()) {
     notes.push("AI not configured: cannot read handwritten answers.");
-    return { rawAnswers, notes };
+    warnings.push("AI is not configured. Answer extraction from handwritten sheets is unavailable.");
+    return { rawAnswers, notes, warnings };
   }
 
   for (let i = 0; i < state.answerPages.length; i++) {
@@ -171,10 +179,14 @@ export async function extractAnswersNode(state: PipelineStateType): Promise<Part
     } catch (err) {
       logger.warn("vision_answer_page_failed", { jobId: state.jobId, page: i + 1, err: String(err) });
       notes.push(`Answer extraction failed on page ${i + 1}; skipped.`);
+      warnings.push(`Answer extraction failed on page ${i + 1} (AI service error). The model may be temporarily unavailable or rate-limited.`);
     }
   }
+  if (rawAnswers.length === 0 && state.answerPages.length > 0) {
+    warnings.push("No answers were extracted from the answer sheet. This could be due to an AI service error or unclear handwriting. Please ensure the uploaded image is a clear scan/photo of the answer sheet.");
+  }
   logger.info("answers_extracted", { jobId: state.jobId, count: rawAnswers.length });
-  return { rawAnswers, notes };
+  return { rawAnswers, notes, warnings };
 }
 
 export async function mapNode(state: PipelineStateType): Promise<Partial<PipelineStateType>> {
@@ -190,6 +202,7 @@ export async function mapNode(state: PipelineStateType): Promise<Partial<Pipelin
 export async function gradeNode(state: PipelineStateType): Promise<Partial<PipelineStateType>> {
   setPhase(state.jobId, "grading", 82, "Grading and feedback");
   const notes = [...state.notes];
+  const warnings = [...state.warnings];
   const { graded, overall } = await gradeAll(state.questions, state.answers, notes);
   const result = {
     jobId: state.jobId,
@@ -200,6 +213,7 @@ export async function gradeNode(state: PipelineStateType): Promise<Partial<Pipel
     answerPages: state.answerPages,
     questionPages: state.questionPages,
     notes,
+    warnings,
   };
   return { result };
 }

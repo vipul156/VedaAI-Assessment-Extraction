@@ -68,6 +68,7 @@ export interface JobResult {
   answerPages: PageImage[];
   questionPages: PageImage[];
   notes: string[];
+  warnings: string[];
 }
 
 export type JobPhase =

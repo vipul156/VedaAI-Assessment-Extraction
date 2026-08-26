@@ -13,6 +13,14 @@ describe("normalizeLabel", () => {
     ["11 (a)", { number: 11, subpart: "a" }],
     ["11a)", { number: 11, subpart: "a" }],
     ["Q. 3(b)", { number: 3, subpart: "b" }],
+    // Labels with trailing text (subject/category names)
+    ["Q1: Science", { number: 1, subpart: null }],
+    ["Q2: Math", { number: 2, subpart: null }],
+    ["Q10: General", { number: 10, subpart: null }],
+    ["3(b): History", { number: 3, subpart: "b" }],
+    ["1 - Science", { number: 1, subpart: null }],
+    ["2. Math", { number: 2, subpart: null }],
+    ["Q1. Science quiz", { number: 1, subpart: null }],
   ])("%s -> %j", (input, expected) => {
     expect(normalizeLabel(input)).toEqual(expected);
   });
@@ -112,6 +120,20 @@ describe("questionsFromVision", () => {
   it("drops items without usable labels", () => {
     const qs = questionsFromVision([{ label: "nonsense", text: "x" }]);
     expect(qs).toHaveLength(0);
+  });
+
+  it("parses subject-suffixed labels from LLM vision output", () => {
+    const qs = questionsFromVision([
+      { label: "Q1: Science", text: "What are the three main states of matter?", marks: null },
+      { label: "Q2: Math", text: "Solve: 25 x 4 + 10 = ?", marks: null },
+      { label: "Q3: History", text: "Who was the first President?", marks: null },
+      { label: "Q4: English", text: "Find the verb.", marks: null },
+      { label: "Q10: General", text: "Name the seven colors of the rainbow.", marks: null },
+    ]);
+    expect(qs).toHaveLength(5);
+    expect(qs.map((q) => q.displayLabel)).toEqual(["1", "2", "3", "4", "10"]);
+    expect(qs[0].text).toBe("What are the three main states of matter?");
+    expect(qs[4].number).toBe(10);
   });
 });
 

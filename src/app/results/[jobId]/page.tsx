@@ -107,6 +107,21 @@ export default function ResultsPage() {
         <main className="veda-scroll flex-1 overflow-y-auto p-4">
           <div className="mx-auto max-w-7xl space-y-4">
             <SummaryCard summary={result.summary} />
+            {result.warnings && result.warnings.length > 0 && (
+              <div className="rounded-2xl bg-amber-50 p-4 shadow-sm ring-1 ring-amber-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg" aria-hidden>⚠️</span>
+                  <p className="text-sm font-semibold text-amber-800">
+                    Processing warnings ({result.warnings.length})
+                  </p>
+                </div>
+                <ul className="mt-2 list-inside list-disc space-y-1 text-xs text-amber-700">
+                  {result.warnings.map((w, i) => (
+                    <li key={i}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
               <section className="flex h-[75vh] flex-col rounded-2xl bg-white shadow-sm ring-1 ring-gray-100">
                 <header className="border-b border-gray-200 px-4 py-3">

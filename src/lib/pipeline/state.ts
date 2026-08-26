@@ -14,6 +14,7 @@ export const PipelineState = Annotation.Root({
   answers: Annotation<Answer[]>,
   result: Annotation<JobResult | null>,
   notes: Annotation<string[]>,
+  warnings: Annotation<string[]>,
 });
 
 export type PipelineStateType = typeof PipelineState.State;

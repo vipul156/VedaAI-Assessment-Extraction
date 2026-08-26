@@ -2,10 +2,10 @@ export const QUESTION_EXTRACTION_PROMPT = `You are an exam paper parser. This im
 Extract EVERY question visible on this page, in printed order.
 
 Rules:
-- label = the question number EXACTLY as printed, e.g. "12", "11 (a)", "Q.3(b)". Preserve the printed form.
+- label = the question number ONLY, e.g. "1", "11 (a)", "3(b)", "Q.3". Do NOT include subject names, categories, or any other text in the label. For "Q1: Science", use label "1". For "Q3(b): History", use label "3 (b)".
 - Sub-parts are SEPARATE questions: "11 (a)" and "11 (b)" are two entries.
 - If only a sub-part letter is printed (e.g. "(b)"), use just that letter as label.
-- text = the complete question text, joined if it wraps lines.
+- text = the complete question text, joined if it wraps lines. Include the subject/category as part of the text if it is printed alongside the question (e.g. text can start with "Science: ...").
 - marks = printed marks if visible (e.g. "[2]", "(3 marks)"), else null.
 - Ignore headers, instructions, and decorative text.
 
