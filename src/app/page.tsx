@@ -143,7 +143,7 @@ export default function UploadPage() {
                     height="144.832"
                   >
                     <div
-                      xmlns="http://www.w3.org/1999/xhtml"
+                    
                       style={{
                         backdropFilter: "blur(1.7px)",
                         clipPath: "url(#bgblur_0_1_8756_clip_path)",
