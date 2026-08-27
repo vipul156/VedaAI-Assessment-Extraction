@@ -11,7 +11,7 @@ export interface DroppedFile {
 
 interface DropZoneProps {
   title: string;
-  hint: string;
+  hint?: string;
   files: DroppedFile[];
   onFiles: (files: File[]) => void;
   onRemove: (name: string) => void;
@@ -33,7 +33,7 @@ function pageCount(files: DroppedFile[]): string {
   return "";
 }
 
-export default function DropZone({ title, hint, files, onFiles, onRemove }: DropZoneProps) {
+export default function DropZone({ title, files, onFiles, onRemove }: DropZoneProps) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,19 +61,32 @@ export default function DropZone({ title, hint, files, onFiles, onRemove }: Drop
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`w-full max-w-md rounded-2xl border-2 border-dashed bg-white p-6 text-center transition ${
-          dragging ? "border-[#F97316] bg-orange-50" : "border-gray-300"
-        } hover:border-[#F97316] cursor-pointer`}
+        className={`w-full max-w-[460px] rounded-[36px] border-2 border-dashed bg-white px-6 py-11 text-center transition-colors ${
+          dragging ? "border-[#FF5A36] bg-orange-50" : "border-gray-300"
+        } cursor-pointer hover:border-[#FF5A36]`}
       >
         {files.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#F97316] text-[#F97316]">
-              ↑
+          <div className="flex flex-col items-center justify-center">
+            <div className="mb-3 flex h-13 w-13 items-center justify-center rounded-[10px] bg-[#F4F4F5]">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#1F2937"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
             </div>
-            <p className="text-sm text-[#1F2937]">
-              Upload <span className="font-bold text-[#F97316]">{title}</span>
+            <p className="text-[22px] font-semibold text-[#1F2937]">
+              Upload <span className="text-[#FF5A36]">{title}</span>
             </p>
-            <p className="text-xs text-gray-400">{hint} · Max 10MB</p>
+            <p className="text-[15px] font-medium text-gray-400">Max 10MB</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -82,7 +95,9 @@ export default function DropZone({ title, hint, files, onFiles, onRemove }: Drop
                 key={f.name}
                 className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 text-left"
               >
-                <span className="text-2xl" aria-hidden>📕</span>
+                <span className="text-2xl" aria-hidden>
+                  📕
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-[#1F2937]">{f.name}</p>
                   <p className="text-xs text-gray-400">
